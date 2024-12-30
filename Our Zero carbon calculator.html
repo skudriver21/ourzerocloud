@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printing Carbon Calculator</title>
+    <script>
+        // Constants and configuration
+        const WASTE_FACTOR = 0.2543;
+        
+        const countryFactors = {
+            "UK": 0.2301,
+            "Austria Electricty": 0.1352,
+            "Belgium Electricty": 0.1747,
+            "Bulgaria Electricty": 0.3384,
+            "CyprusElectricty": 0.2254,
+            "Croatia Electricty": 0.5492,
+            "Czech RepublicElectricty": 0.4344,
+            "DenmarkElectricty": 0.1596,
+            "EstoniaElectricty": 0.5148,
+            "FinlandElectricty": 0.1229,
+            "FranceElectricty": 0.0886,
+            "GermanyElectricty": 0.3123,
+            "GreeceElectricty": 0.3679,
+            "HungaryElectricty": 0.2384,
+            "IcelandElectricty": 0.0488,
+            "IrelandElectricty": 0.3103,
+            "ItalyElectricty": 0.3008,
+            "LatviaElectricty": 0.2166,
+            "LithuaniaElectricty": 0.2461,
+            "LuxembourgElectricty": 0.1276,
+            "MaltaElectricty": 0.3528,
+            "NetherlandsElectricty": 0.3401,
+            "NorwayElectricty": 0.0546,
+            "PolandElectricty": 0.6401,
+            "PortugalElectricty": 0.2056,
+            "RomaniaElectricty": 0.2525,
+            "Russian FederationElectricty": 0.2902,
+            "SerbiaElectricty": 0.6533,
+            "SlovakiaElectricty": 0.1697,
+            "SloveniaElectricty": 0.2231,
+            "SpainElectricty": 0.1818,
+            "SwedenElectricty": 0.0531,
+            "SwitzerlandElectricty": 0.0577,
+            "Australian Capital Territory (Canberra etc)Electricty": 0.6793,
+            "AUSTRALIA New South WalesElectricty": 0.6793,
+            "AUSTRALIA Northern TerritoryElectricty": 0.5391,
+            "AUSTRALIA Northern Territory – Darwin Katherine Interconnected System (DKIS)Electricty": 0.4769,
+            "AUSTRALIA QueenslandElectricty": 0.6793,
+            "AUSTRALIA South AustraliaElectricty": 0.3912,
+            "AUSTRALIA TasmaniaElectricty": 0.1655,
+            "AUSTRALIA VictoriaElectricty": 0.8428,
+            "AUSTRALIA Western Australia – North Western Interconnected System (NWIS)Electricty": 0.508,
+            "AUSTRALIA Western Australia – South West Interconnected System (SWIS)Electricty": 0.5859,
+            "USA Alaska (AK)": 0.3898,
+            "USA Alabama (AL)": 0.3033,
+            "USA Arkansas (AR)": 0.3846,
+            "USA Arizona (AZ)": 0.3089,
+            "USA California (CA)": 0.2087,
+            "USA Colorado (CO)": 0.4792,
+            "USA Connecticut (CT)": 0.2358,
+            "USA Washington DC (DC)": 0.3316,
+            "USA Delaware (DE)": 0.3153,
+            "USA Florida (FL)": 0.3461,
+            "USA Georgia (GA)": 0.3042,
+            "USA Hawaii (HI)": 0.5877,
+            "USA Iowa (IA)": 0.2659,
+            "USA Idaho (ID)": 0.124,
+            "USA Illinois (IL)": 0.2452,
+            "USA Indiana (IN)": 0.5958,
+            "USA Kansas (KS)": 0.3327,
+            "USA Kentucky (KY)": 0.6437,
+            "USA Louisiana (LA)": 0.3177,
+            "USA Massachusetts (MA)": 0.3594,
+            "USA Maryland (MD)": 0.2766,
+            "USA Maine (ME)": 0.1293,
+            "USA Michigan (MI)": 0.3799,
+            "USA Minnesota (MN)": 0.3207,
+            "USA Missouri (MO)": 0.6202,
+            "USA Mississippi (MS)": 0.3644,
+            "USA Montana (MT)": 0.371,
+            "USA North Carolina (NC)": 0.2777,
+            "USA North Dakota (ND)": 0.5389,
+            "USA Nebraska (NE)": 0.4727,
+            "USA New Hampshire (NH)": 0.1362,
+            "USA New Jersey (NJ)": 0.2225,
+            "USA New Mexico (NM)": 0.4936,
+            "USA Nevada (NV)": 0.3017,
+            "USA New York (NY)": 0.1958,
+            "USA Ohio (OH)": 0.4912,
+            "USA Oklahoma (OK)": 0.2989,
+            "USA Oregon (OR)": 0.1693,
+            "USA Pennsylvania (PA)": 0.295,
+            "USA Rhode Island (RI)": 0.6167,
+            "USA South Carolina (SC)": 0.3409,
+            "USA South Dakota (SD)": 0.2301,
+            "USA Tennessee (TN)": 0.169,
+            "USA Texas (TX)": 0.2505,
+            "USA Utah (UT)": 0.3515,
+            "USA Virginia (VA)": 0.6016,
+            "USA Vermont (VT)": 0.2764,
+            "USA Washington (WA)": 0.0594,
+            "USA Wisconsin (WI)": 0.124,
+            "USA West Virginia (WV)": 0.4696,
+            "USA Wyoming (WY)": 0.7283,
+            "Canada Alberta (AB)": 0.5391,
+            "Canada British Columbia (BC)": 0.0583,
+            "Canada Manitoba (MT)": 0.0497,
+            "Canada New Brunswick (NB)": 0.3523,
+            "Canada Newfoundland and Labrador (NL)": 0.0689,
+            "Canada Nova Scotia (NS)": 0.6092,
+            "Canada Northwest Territories (NT)": 0.1732,
+            "Canada Nunavut (NU)": 0.7026,
+            "Canada Ontario (ON)": 0.0713,
+            "Canada Prince Edward Island (PE)": 0.0518,
+            "Canada Quebec (QC)": 0.0497,
+            "Canada Saskatchewan (SK)": 0.5781,
+            "Canada Yukon Territory (YT)": 0.1024,
+            "South Africa": 0.7498,
+            "China (PR)": 0.4671,
+            "Hong Kong 1 (China)": 0.5547,
+            "India": 0.6,
+            "Indonesia": 0.6074,
+            "Japan": 0.4113,
+            "Korea (Republic)": 0.3722,
+            "Singapore": 0.3663,
+            "Thailand": 0.3928,
+            "New Zealand": 0.1276,
+            "Saudi Arabia": 0.4425,
+            "Turkey": 0.3406,
+            "United Arab Emirates": 0.3633,
+            "Mexico": 0.3845,
+            "Argentina": 0.2877,
+            "Brazil": 0.0967
+        };
+        
+        const MATERIAL_FACTORS = {
+            generic_paper: 0.8829,
+            generic_recycled_paper: 0.7029,
+            generic_corrugated_brown: 0.76336,
+            generic_recycled_corrugated: 0.69962,
+            generic_white_corrugated: 1.436,
+            generic_white_cartonboard: 0.76352,
+            generic_recycled_cartonboard: 0.70162,
+            self_adhesive_paper: 1.2,
+            plastic_hdpe: 2.13,
+            plastic_ldpe: 2.25,
+            plastic_pet: 3.03,
+            plastic_recycled_pet: 0.6,
+            plastic_pp: 1.53,
+            plastic_recycled_pp: 0.6,
+            plastic_pvc: 2.2,
+            plastic_recycled_pvc: 0.6,
+            plastic_ps: 3.32,
+            plastic_abs: 3.46,
+            plastic_pmma: 4.38,
+            plastic_pc: 4.30,
+            plastic_average: 3.11629,
+            plastic_recycled_average: 0.6
+        };
+
+        const BASE_INTENSITY_FACTORS = {
+            scope12: 0.23, // Default value, will be overridden by country selection
+            transport: 0.036,
+            ink: 0.024,
+            packaging: 0.198,
+            tdLosses: 0.004,
+            printingPlates: 0.145,
+            workingFromHome: 0.007,
+            employeeCommuting: 0.115,
+            purchasedFuel: 0.017,
+            manufacturingWaste: 0.128,
+            water: 0.001,
+            delivery: 0.172
+        };
+
+        // Global functions
+        window.toggleInputMethod = function(method) {
+            const massInput = document.getElementById('massInput');
+            const printSpecs = document.getElementById('printSpecs');
+            
+            if (method === 'mass') {
+                massInput.classList.remove('hidden');
+                printSpecs.classList.add('hidden');
+            } else {
+                massInput.classList.add('hidden');
+                printSpecs.classList.remove('hidden');
+                calculatePrintMass();
+            }
+        };
+
+        window.calculatePrintMass = function() {
+            const width = parseFloat(document.getElementById('width').value) || 0;
+            const height = parseFloat(document.getElementById('height').value) || 0;
+            const gsm = parseFloat(document.getElementById('gsm').value) || 0;
+            const pieces = parseInt(document.getElementById('pieces').value) || 0;
+            
+            const mass = (width * height * gsm * pieces) / 1000000000;
+            
+            document.getElementById('calculatedMass').textContent = `Calculated Mass: ${mass.toFixed(3)} kg`;
+            document.getElementById('quantity').value = mass;
+        };
+
+        window.calculateEmissions = function() {
+            const WASTE_FACTOR = 0.2543;
+            
+            const MATERIAL_FACTORS = {
+                generic_paper: 0.8829,
+                generic_recycled_paper: 0.7029,
+                generic_corrugated_brown: 0.76336,
+                generic_recycled_corrugated: 0.69962,
+                generic_white_corrugated: 1.436,
+                generic_white_cartonboard: 0.76352,
+                generic_recycled_cartonboard: 0.70162,
+                self_adhesive_paper: 1.2,
+                plastic_hdpe: 2.13,
+                plastic_ldpe: 2.25,
+                plastic_pet: 3.03,
+                plastic_recycled_pet: 0.6,
+                plastic_pp: 1.53,
+                plastic_recycled_pp: 0.6,
+                plastic_pvc: 2.2,
+                plastic_recycled_pvc: 0.6,
+                plastic_ps: 3.32,
+                plastic_abs: 3.46,
+                plastic_pmma: 4.38,
+                plastic_pc: 4.30,
+                plastic_average: 3.11629,
+                plastic_recycled_average: 0.6
+            };
+
+            // Complete list of country factors
+const countryFactors = {
+    "UK": 0.2301,
+    "Austria Electricty": 0.1352,
+    "Belgium Electricty": 0.1747,
+    "Bulgaria Electricty": 0.3384,
+    "CyprusElectricty": 0.2254,
+    "Croatia Electricty": 0.5492,
+    "Czech RepublicElectricty": 0.4344,
+    "DenmarkElectricty": 0.1596,
+    "EstoniaElectricty": 0.5148,
+    "FinlandElectricty": 0.1229,
+    "FranceElectricty": 0.0886,
+    "GermanyElectricty": 0.3123,
+    "GreeceElectricty": 0.3679,
+    "HungaryElectricty": 0.2384,
+    "IcelandElectricty": 0.0488,
+    "IrelandElectricty": 0.3103,
+    "ItalyElectricty": 0.3008,
+    "LatviaElectricty": 0.2166,
+    "LithuaniaElectricty": 0.2461,
+    "LuxembourgElectricty": 0.1276,
+    "MaltaElectricty": 0.3528,
+    "NetherlandsElectricty": 0.3401,
+    "NorwayElectricty": 0.0546,
+    "PolandElectricty": 0.6401,
+    "PortugalElectricty": 0.2056,
+    "RomaniaElectricty": 0.2525,
+    "Russian FederationElectricty": 0.2902,
+    "SerbiaElectricty": 0.6533,
+    "SlovakiaElectricty": 0.1697,
+    "SloveniaElectricty": 0.2231,
+    "SpainElectricty": 0.1818,
+    "SwedenElectricty": 0.0531,
+    "SwitzerlandElectricty": 0.0577,
+    "Australian Capital Territory (Canberra etc)Electricty": 0.6793,
+    "AUSTRALIA New South WalesElectricty": 0.6793,
+    "AUSTRALIA Northern TerritoryElectricty": 0.5391,
+    "AUSTRALIA Northern Territory – Darwin Katherine Interconnected System (DKIS)Electricty": 0.4769,
+    "AUSTRALIA QueenslandElectricty": 0.6793,
+    "AUSTRALIA South AustraliaElectricty": 0.3912,
+    "AUSTRALIA TasmaniaElectricty": 0.1655,
+    "AUSTRALIA VictoriaElectricty": 0.8428,
+    "AUSTRALIA Western Australia – North Western Interconnected System (NWIS)Electricty": 0.508,
+    "AUSTRALIA Western Australia – South West Interconnected System (SWIS)Electricty": 0.5859,
+    "USA Alaska (AK)": 0.3898,
+    "USA Alabama (AL)": 0.3033,
+    "USA Arkansas (AR)": 0.3846,
+    "USA Arizona (AZ)": 0.3089,
+    "USA California (CA)": 0.2087,
+    "USA Colorado (CO)": 0.4792,
+    "USA Connecticut (CT)": 0.2358,
+    "USA Washington DC (DC)": 0.3316,
+    "USA Delaware (DE)": 0.3153,
+    "USA Florida (FL)": 0.3461,
+    "USA Georgia (GA)": 0.3042,
+    "USA Hawaii (HI)": 0.5877,
+    "USA Iowa (IA)": 0.2659,
+    "USA Idaho (ID)": 0.124,
+    "USA Illinois (IL)": 0.2452,
+    "USA Indiana (IN)": 0.5958,
+    "USA Kansas (KS)": 0.3327,
+    "USA Kentucky (KY)": 0.6437,
+    "USA Louisiana (LA)": 0.3177,
+    "USA Massachusetts (MA)": 0.3594,
+    "USA Maryland (MD)": 0.2766,
+    "USA Maine (ME)": 0.1293,
+    "USA Michigan (MI)": 0.3799,
+    "USA Minnesota (MN)": 0.3207,
+    "USA Missouri (MO)": 0.6202,
+    "USA Mississippi (MS)": 0.3644,
+    "USA Montana (MT)": 0.371,
+    "USA North Carolina (NC)": 0.2777,
+    "USA North Dakota (ND)": 0.5389,
+    "USA Nebraska (NE)": 0.4727,
+    "USA New Hampshire (NH)": 0.1362,
+    "USA New Jersey (NJ)": 0.2225,
+    "USA New Mexico (NM)": 0.4936,
+    "USA Nevada (NV)": 0.3017,
+    "USA New York (NY)": 0.1958,
+    "USA Ohio (OH)": 0.4912,
+    "USA Oklahoma (OK)": 0.2989,
+    "USA Oregon (OR)": 0.1693,
+    "USA Pennsylvania (PA)": 0.295,
+    "USA Rhode Island (RI)": 0.6167,
+    "USA South Carolina (SC)": 0.3409,
+    "USA South Dakota (SD)": 0.2301,
+    "USA Tennessee (TN)": 0.169,
+    "USA Texas (TX)": 0.2505,
+    "USA Utah (UT)": 0.3515,
+    "USA Virginia (VA)": 0.6016,
+    "USA Vermont (VT)": 0.2764,
+    "USA Washington (WA)": 0.0594,
+    "USA Wisconsin (WI)": 0.124,
+    "USA West Virginia (WV)": 0.4696,
+    "USA Wyoming (WY)": 0.7283,
+    "Canada Alberta (AB)": 0.5391,
+    "Canada British Columbia (BC)": 0.0583,
+    "Canada Manitoba (MT)": 0.0497,
+    "Canada New Brunswick (NB)": 0.3523,
+    "Canada Newfoundland and Labrador (NL)": 0.0689,
+    "Canada Nova Scotia (NS)": 0.6092,
+    "Canada Northwest Territories (NT)": 0.1732,
+    "Canada Nunavut (NU)": 0.7026,
+    "Canada Ontario (ON)": 0.0713,
+    "Canada Prince Edward Island (PE)": 0.0518,
+    "Canada Quebec (QC)": 0.0497,
+    "Canada Saskatchewan (SK)": 0.5781,
+    "Canada Yukon Territory (YT)": 0.1024,
+    "South Africa": 0.7498,
+    "China (PR)": 0.4671,
+    "Hong Kong 1 (China)": 0.5547,
+    "India": 0.6,
+    "Indonesia": 0.6074,
+    "Japan": 0.4113,
+    "Korea (Republic)": 0.3722,
+    "Singapore": 0.3663,
+    "Thailand": 0.3928,
+    "New Zealand": 0.1276,
+    "Saudi Arabia": 0.4425,
+    "Turkey": 0.3406,
+    "United Arab Emirates": 0.3633,
+    "Mexico": 0.3845,
+    "Argentina": 0.2877,
+    "Brazil": 0.0967
+};
+
+const BASE_INTENSITY_FACTORS = {
+                scope12: 0.23, // Default value, will be overridden by country selection
+                transport: 0.036,
+                ink: 0.024,
+                packaging: 0.198,
+                tdLosses: 0.004,
+                printingPlates: 0.145,
+                workingFromHome: 0.007,
+                employeeCommuting: 0.115,
+                purchasedFuel: 0.017,
+                manufacturingWaste: 0.128,
+                water: 0.001,
+                delivery: 0.172
+            };
+
+            const materialType = document.getElementById('materialType').value;
+            const quantity = parseFloat(document.getElementById('quantity').value);
+
+            if (!materialType || !quantity || quantity <= 0) {
+                return;
+            }
+
+            // Get country-specific factor
+            const country = document.getElementById('country').value;
+            const scope12Factor = countryFactors[country] || BASE_INTENSITY_FACTORS.scope12;
+            
+            const wasteQuantity = quantity * WASTE_FACTOR;
+            const adjustedQuantity = quantity * (1 + WASTE_FACTOR);
+            const materialFactor = MATERIAL_FACTORS[materialType] || 0;
+            const baseMaterialEmissions = quantity * materialFactor;
+            const manufacturingWasteEmissions = wasteQuantity * BASE_INTENSITY_FACTORS.manufacturingWaste;
+
+            const otherProductionEmissions = adjustedQuantity * (
+                scope12Factor +
+                BASE_INTENSITY_FACTORS.transport +
+                BASE_INTENSITY_FACTORS.ink +
+                BASE_INTENSITY_FACTORS.packaging +
+                BASE_INTENSITY_FACTORS.tdLosses +
+                BASE_INTENSITY_FACTORS.printingPlates +
+                BASE_INTENSITY_FACTORS.workingFromHome +
+                BASE_INTENSITY_FACTORS.employeeCommuting +
+                BASE_INTENSITY_FACTORS.purchasedFuel +
+                BASE_INTENSITY_FACTORS.water
+            );
+
+            const printProductionEmissions = manufacturingWasteEmissions + otherProductionEmissions;
+            const deliveryEmissions = adjustedQuantity * BASE_INTENSITY_FACTORS.delivery;
+            const endOfLifeEmissions = quantity * (materialType.includes('paper') ? 0.44 : 0.013);
+            const totalEmissions = baseMaterialEmissions + printProductionEmissions + deliveryEmissions + endOfLifeEmissions;
+
+            // Display results
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('baseMaterialEmissions').textContent = baseMaterialEmissions.toFixed(3);
+            document.getElementById('printProductionEmissions').textContent = printProductionEmissions.toFixed(3);
+            document.getElementById('deliveryEmissions').textContent = deliveryEmissions.toFixed(3);
+            document.getElementById('endOfLifeEmissions').textContent = endOfLifeEmissions.toFixed(3);
+            document.getElementById('totalEmissions').textContent = totalEmissions.toFixed(3);
+
+            // Update equivalents
+            document.getElementById('petrolGallons').textContent = (totalEmissions / 8.21).toFixed(3);
+            document.getElementById('coalBurnt').textContent = (totalEmissions / 2883.26).toFixed(3);
+            document.getElementById('milesDriven').textContent = (totalEmissions / 8.21 * 55.5).toFixed(1);
+            document.getElementById('plasticBottles').textContent = Math.round(totalEmissions * 150);
+            document.getElementById('homeElectricity').textContent = (totalEmissions / 1119.07).toFixed(3);
+            document.getElementById('ledBulbs').textContent = (totalEmissions / 7.92).toFixed(1);
+            document.getElementById('treeSeedlings').textContent = (totalEmissions / 0.0604).toFixed(1);
+        };
+
+        // Add event listeners when the page loads
+        function loadCountryFactors() {
+            const countrySelect = document.getElementById('country');
+            Object.keys(countryFactors).sort().forEach(country => {
+                const option = document.createElement('option');
+                option.value = country;
+                option.textContent = country;
+                if (country === 'UK') option.selected = true;
+                countrySelect.appendChild(option);
+            });
+        }
+
+        window.onload = function() {
+            // Load country factors
+            loadCountryFactors();
+            // Set up print spec input event listeners
+            ['width', 'height', 'gsm', 'pieces'].forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('input', calculatePrintMass);
+                }
+            });
+        };
+    </script>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .card {
+            background: white;
+            max-width: 768px;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .card-title {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .card-content {
+            padding: 20px;
+        }
+        .grid {
+            display: grid;
+            gap: 1rem;
+        }
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        select, input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+        }
+        button {
+            width: 100%;
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .hidden {
+            display: none;
+        }
+        .results {
+            margin-top: 1.5rem;
+            border-top: 1px solid #e5e5e5;
+            padding-top: 1.5rem;
+            display: none;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 0.5rem;
+        }
+        .divider {
+            grid-column: span 2;
+            border-top: 1px solid #e5e5e5;
+            margin: 0.5rem 0;
+        }
+        .input-toggle {
+            margin-bottom: 1rem;
+        }
+        .input-toggle label {
+            display: inline-flex;
+            align-items: center;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        .input-toggle input[type="radio"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+        .calculated-mass {
+            margin-top: 0.5rem;
+            color: #6b7280;
+        }
+        @media (max-width: 640px) {
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">Printing Carbon Calculator</h1>
+        </div>
+        <div class="card-content">
+            <div class="input-toggle">
+                <label>
+                    <input type="radio" name="input-type" value="mass" checked onclick="toggleInputMethod('mass')">
+                    Enter mass directly
+                </label>
+                <label>
+                    <input type="radio" name="input-type" value="specs" onclick="toggleInputMethod('specs')">
+                    Calculate from print specifications
+                </label>
+            </div>
+
+            <div class="grid grid-cols-2">
+                <div>
+                    <label>Production Country</label>
+                    <select id="country">
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2">
+                <div>
+                    <label>Material Type</label>
+                    <select id="materialType">
+                        <optgroup label="Paper & Board">
+                            <option value="generic_paper">Generic Paper</option>
+                            <option value="generic_recycled_paper">Generic Recycled Paper</option>
+                            <option value="generic_corrugated_brown">Generic Corrugated Brown</option>
+                            <option value="generic_recycled_corrugated">Generic Recycled Corrugated</option>
+                            <option value="generic_white_corrugated">Generic White Corrugated</option>
+                            <option value="generic_white_cartonboard">Generic White Cartonboard</option>
+                            <option value="generic_recycled_cartonboard">Generic Recycled Cartonboard</option>
+                            <option value="self_adhesive_paper">Self Adhesive Paper</option>
+                        </optgroup>
+                        <optgroup label="Plastics">
+                            <option value="plastic_hdpe">HDPE</option>
+                            <option value="plastic_ldpe">LDPE</option>
+                            <option value="plastic_pet">PET</option>
+                            <option value="plastic_recycled_pet">PET Recycled</option>
+                            <option value="plastic_pp">PP</option>
+                            <option value="plastic_recycled_pp">PP Recycled</option>
+                            <option value="plastic_pvc">PVC</option>
+                            <option value="plastic_recycled_pvc">PVC Recycled</option>
+                            <option value="plastic_ps">PS</option>
+                            <option value="plastic_abs">ABS</option>
+                            <option value="plastic_pmma">PMMA/Acrylic</option>
+                            <option value="plastic_pc">PC</option>
+                            <option value="plastic_average">Average Plastic</option>
+                            <option value="plastic_recycled_average">Average Recycled Plastic</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div id="massInput">
+                    <label>Quantity (KG)</label>
+                    <input type="number" id="quantity" min="0" step="0.001" value="1">
+                </div>
+            </div>
+
+            <div id="printSpecs" class="hidden grid grid-cols-2">
+                <div>
+                    <label>Width (mm)</label>
+                    <input type="number" id="width" min="0" step="1" value="210">
+                </div>
+                <div>
+                    <label>Height (mm)</label>
+                    <input type="number" id="height" min="0" step="1" value="297">
+                </div>
+                <div>
+                    <label>GSM (g/m²)</label>
+                    <input type="number" id="gsm" min="0" step="1" value="80">
+                </div>
+                <div>
+                    <label>Quantity (pieces)</label>
+                    <input type="number" id="pieces" min="0" step="1" value="1000">
+                </div>
+                <div class="col-span-2">
+                    <div id="calculatedMass" class="calculated-mass">Calculated Mass: 0.000 kg</div>
+                </div>
+            </div>
+
+            <button onclick="calculateEmissions()">Calculate Emissions</button>
+
+            <div id="results" class="results">
+                <h3>Results (CO2e KG)</h3>
+                <div class="results-grid">
+                    <div>Material Emissions (inc. waste):</div>
+                    <div id="baseMaterialEmissions">0</div>
+                    
+                    <div>Print Production Emissions:</div>
+                    <div id="printProductionEmissions">0</div>
+                    
+                    <div>Delivery Emissions:</div>
+                    <div id="deliveryEmissions">0</div>
+                    
+                    <div>End of Life Emissions:</div>
+                    <div id="endOfLifeEmissions">0</div>
+                    
+                    <div class="divider"></div>
+                    
+                    <div class="font-medium">Total Emissions:</div>
+                    <div id="totalEmissions" class="font-medium">0</div>
+                    
+                    <div class="divider"></div>
+                    <h3 style="grid-column: span 2;">Environmental Impact Equivalents:</h3>
+                    
+                    <div>Gallons of Petrol:</div>
+                    <div id="petrolGallons">0</div>
+                    
+                    <div>Coal Burnt (tonnes):</div>
+                    <div id="coalBurnt">0</div>
+                    
+                    <div>Miles Driven:</div>
+                    <div id="milesDriven">0</div>
+                    
+                    <div>Plastic Bottles:</div>
+                    <div id="plasticBottles">0</div>
+                    
+                    <div>Home Electricity (years):</div>
+                    <div id="homeElectricity">0</div>
+                    
+                    <div>LED Bulb Conversions:</div>
+                    <div id="ledBulbs">0</div>
+                    
+                    <div>Tree Seedlings (10 years):</div>
+                    <div id="treeSeedlings">0</div>
